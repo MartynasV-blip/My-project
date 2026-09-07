@@ -1653,8 +1653,8 @@ MonoBehaviour:
   playerLayers:
     serializedVersion: 2
     m_Bits: 128
-  ragdollForce: 20
-  punchLift: 2
+  ragdollForce: 400
+  punchLift: 20
   recoveryTime: 0.5
 --- !u!4 &8290598125765963517 stripped
 Transform:

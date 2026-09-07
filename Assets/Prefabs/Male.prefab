@@ -550,8 +550,8 @@ MonoBehaviour:
   playerLayers:
     serializedVersion: 2
     m_Bits: 128
-  ragdollForce: 200
-  punchLift: 40
+  ragdollForce: 400
+  punchLift: 50
   recoveryTime: 0.5
 --- !u!114 &2787993075646023201
 MonoBehaviour:

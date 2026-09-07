@@ -1552,6 +1552,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   moveForce: 40
   turnSpeed: 1740
+  sprintMultiplier: 1.5
   cameraTransform: {fileID: 0}
   punchCooldown: 0.6
   punchPoint: {fileID: 7825967446251601943}
