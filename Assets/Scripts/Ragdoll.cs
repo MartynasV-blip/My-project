@@ -19,9 +19,10 @@ public class Ragdoll : MonoBehaviour
     private Transform pelvis;
 
     private bool isRagdolled;
+    public bool IsRagdolled => isRagdolled;
 
     void Awake() {
-        animator = GetComponent<Animator>();
+        animator = GetComponentInChildren<Animator>();
         rootBody = GetComponent<Rigidbody>();
         rootCollider = GetComponent<Collider>();
 
