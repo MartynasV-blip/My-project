@@ -5,10 +5,11 @@ using UnityEngine;
 public class EnemySpawner : MonoBehaviour
 {
     [Header("What to spawn")]
-    public GameObject enemyPrefab;
+    public GameObject[] enemyPrefabs;
 
     [Header("Where")]
     public Transform[] spawnPoints;
+    public bool avoidRepeatingPoint = true;
 
     [Header("Wave timing")]
     public float firstWaveDelay = 3f;
@@ -18,21 +19,21 @@ public class EnemySpawner : MonoBehaviour
     public int enemiesAddedPerWave = 1;
 
     [Header("Limits")]
-    public int maxAlive = 8;
+    public int maxAlive = 15;
     public bool spawnOnStart = true;
 
-    private int nextSpawnIndex;
     private int waveNumber;
+    private int lastSpawnIndex = -1;
     private readonly List<GameObject> alive = new List<GameObject>();
 
     void Start() {
-        if (enemyPrefab == null) {
-            Debug.LogError($"{name}: Enemy Prefab is not assigned. Nothing will spawn.");
+        if (enemyPrefabs == null || enemyPrefabs.Length == 0) {
+            Debug.LogError($"{name}: no enemy prefabs assigned. Nothing will spawn.");
             return;
         }
 
         if (spawnPoints == null || spawnPoints.Length == 0) {
-            Debug.LogError($"{name}: No spawn points assigned. Nothing will spawn.");
+            Debug.LogError($"{name}: no spawn points assigned. Nothing will spawn.");
             return;
         }
 
@@ -56,8 +57,8 @@ public class EnemySpawner : MonoBehaviour
         for (int i = 0; i < count; i++) {
             alive.RemoveAll(e => e == null);
 
-            if (alive.Count >= maxAlive) {
-                Debug.Log($"Max alive ({maxAlive}) reached, skipping rest of wave.");
+            if (maxAlive > 0 && alive.Count >= maxAlive) {
+                Debug.Log($"Max alive ({maxAlive}) reached, skipping rest of wave {waveNumber}.");
                 yield break;
             }
 
@@ -67,17 +68,48 @@ public class EnemySpawner : MonoBehaviour
     }
 
     void SpawnOne() {
-        Transform point = spawnPoints[nextSpawnIndex];
-        nextSpawnIndex = (nextSpawnIndex + 1) % spawnPoints.Length;
-
+        Transform point = PickSpawnPoint();
         if (point == null) {
-            Debug.LogWarning($"{name}: a spawn point slot is empty, skipping.");
+            Debug.LogWarning($"{name}: no usable spawn point found, skipping.");
             return;
         }
 
-        GameObject e = Instantiate(enemyPrefab, point.position, point.rotation);
-        e.name = $"{enemyPrefab.name}_w{waveNumber}";
+        GameObject prefab = PickPrefab();
+        if (prefab == null) {
+            Debug.LogWarning($"{name}: an enemy prefab slot is empty, skipping.");
+            return;
+        }
+
+        GameObject e = Instantiate(prefab, point.position, point.rotation);
+        e.name = $"{prefab.name}_w{waveNumber}";
         alive.Add(e);
+    }
+
+    Transform PickSpawnPoint() {
+        if (spawnPoints.Length == 1) return spawnPoints[0];
+
+        for (int attempt = 0; attempt < 10; attempt++) {
+            int index = Random.Range(0, spawnPoints.Length);
+
+            if (avoidRepeatingPoint && index == lastSpawnIndex) continue;
+            if (spawnPoints[index] == null) continue;
+
+            lastSpawnIndex = index;
+            return spawnPoints[index];
+        }
+
+        foreach (Transform t in spawnPoints)
+            if (t != null) return t;
+
+        return null;
+    }
+
+    GameObject PickPrefab() {
+        for (int attempt = 0; attempt < 10; attempt++) {
+            GameObject p = enemyPrefabs[Random.Range(0, enemyPrefabs.Length)];
+            if (p != null) return p;
+        }
+        return null;
     }
 
     public void SpawnWaveNow() {

@@ -557,12 +557,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9319546635b0ae34abcaa167932e11cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
-  enemyPrefab: {fileID: 6656093529113367745, guid: 49e22c5daf1f08747ab299e91f4045f0, type: 3}
+  enemyPrefabs:
+  - {fileID: 8290598125765866287, guid: 4fbf2232a6f51824198e83450ed87bea, type: 3}
+  - {fileID: 6656093529113367745, guid: 49e22c5daf1f08747ab299e91f4045f0, type: 3}
+  - {fileID: 1610072576636594369, guid: 510791a2e18dedd45b2114282f386a15, type: 3}
   spawnPoints:
   - {fileID: 1076248319}
   - {fileID: 1063133743}
   - {fileID: 1527403841}
   - {fileID: 66010850}
+  avoidRepeatingPoint: 1
   firstWaveDelay: 3
   timeBetweenWaves: 20
   enemiesPerWave: 2
