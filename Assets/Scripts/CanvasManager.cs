@@ -1,10 +1,14 @@
 using UnityEngine;
+using TMPro;
 
 public class CanvasManager : MonoBehaviour
 {
     public static bool gameIsPaused = false;
 
     [SerializeField] private GameObject pauseMenuUI;
+    [SerializeField] private TMP_Text timerText;
+
+    private float elapsedTime = 0f;
 
     void Update()
     {
@@ -19,6 +23,15 @@ public class CanvasManager : MonoBehaviour
                 Pause();
             }
         }
+        elapsedTime += Time.deltaTime;
+        UpdateTimerDisplay();
+    }
+
+        void UpdateTimerDisplay()
+    {
+        int minutes = Mathf.FloorToInt(elapsedTime / 60f);
+        int seconds = Mathf.FloorToInt(elapsedTime % 60f);
+        timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
     }
 
     public void Resume()

@@ -116,41 +116,49 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    IEnumerator PunchHitCheck() {
-        if (punchPoint == null) {
-            Debug.LogWarning($"{name}: PunchPoint not assigned on EnemyAI.");
-            yield break;
-        }
+IEnumerator PunchHitCheck() {
+    if (punchPoint == null) {
+        yield break;
+    }
 
-        yield return new WaitForSeconds(punchWindowStart);
+    yield return new WaitForSeconds(punchWindowStart);
 
-        float elapsed = 0f;
-        var alreadyHit = new HashSet<Collider>();
+    float elapsed = 0f;
+    var alreadyHit = new HashSet<Collider>();
+    bool damageApplied = false;
 
-        while (elapsed < punchWindowDuration) {
-            Collider[] hits = Physics.OverlapSphere(punchPoint.position, punchRadius, playerLayers);
+    while (elapsed < punchWindowDuration) {
+        Collider[] hits = Physics.OverlapSphere(punchPoint.position, punchRadius, playerLayers);
 
-            foreach (Collider c in hits) {
-                if (alreadyHit.Contains(c)) continue;
-                alreadyHit.Add(c);
+        foreach (Collider c in hits) {
+            if (alreadyHit.Contains(c)) continue;
+            alreadyHit.Add(c);
 
-                Debug.Log($"{name} hit {c.name}");
+            Debug.Log($"{name} hit {c.name}");
 
-                Ragdoll rag = c.GetComponentInParent<Ragdoll>();
-                if (rag == null || rag == ragdoll) continue;
+            Ragdoll rag = c.GetComponentInParent<Ragdoll>();
+            if (rag == null || rag == ragdoll) continue;
 
-                Vector3 dir = c.transform.position - transform.position;
-                dir.y = 0f;
-                if (dir.sqrMagnitude < 0.001f) dir = transform.forward;
-                dir.Normalize();
-
-                rag.Hit(dir * ragdollForce + Vector3.up * punchLift, punchPoint.position);
+            if (!damageApplied) {
+                PlayerHealth playerHealth = c.GetComponentInParent<PlayerHealth>();
+                if (playerHealth != null) {
+                    playerHealth.TakeDamage(1);
+                    damageApplied = true;
+                }
             }
 
-            elapsed += Time.deltaTime;
-            yield return null;
+            Vector3 dir = c.transform.position - transform.position;
+            dir.y = 0f;
+            if (dir.sqrMagnitude < 0.001f) dir = transform.forward;
+            dir.Normalize();
+
+            rag.Hit(dir * ragdollForce + Vector3.up * punchLift, punchPoint.position);
         }
+
+        elapsed += Time.deltaTime;
+        yield return null;
     }
+}
 
     void EnterRagdolled() {
         state = State.Ragdolled;
