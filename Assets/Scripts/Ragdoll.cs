@@ -4,7 +4,7 @@ using UnityEngine;
 public class Ragdoll : MonoBehaviour
 {
     [Header("Timing")]
-    public float ragdollDuration = 10f;
+    public float ragdollDuration = 4f;
     public float standUpHeight = 1f;
 
     [Header("Ground Check")]
@@ -43,9 +43,13 @@ public class Ragdoll : MonoBehaviour
     void SetBonesActive(bool physicsOn) {
         foreach (Rigidbody b in boneBodies) {
             if (b == rootBody) continue;
+
+            if (!b.isKinematic) {
+                b.linearVelocity = Vector3.zero;
+                b.angularVelocity = Vector3.zero;
+            }
+
             b.isKinematic = !physicsOn;
-            b.linearVelocity = Vector3.zero;
-            b.angularVelocity = Vector3.zero;
         }
 
         foreach (Collider c in boneColliders) {
@@ -95,13 +99,13 @@ public class Ragdoll : MonoBehaviour
         transform.position = new Vector3(landedPos.x, groundY + standUpHeight, landedPos.z);
         transform.rotation = Quaternion.LookRotation(flatForward, Vector3.up);
 
-        if (rootBody != null) {
+        if (rootBody != null && !rootBody.isKinematic) {
             rootBody.linearVelocity = Vector3.zero;
             rootBody.angularVelocity = Vector3.zero;
         }
     }
 
-        Rigidbody FindNearestBone(Vector3 point) {
+    Rigidbody FindNearestBone(Vector3 point) {
         Rigidbody best = null;
         float bestDist = float.MaxValue;
 
