@@ -584,6 +584,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
   enemyPrefabs:
+  - {fileID: 8290598125765866287, guid: 8234ea381afb65740a72046ecf915a4c, type: 3}
+  - {fileID: 6656093529113367745, guid: a4319539f84309042b3888235c68b2e1, type: 3}
   - {fileID: 8290598125765866287, guid: 4fbf2232a6f51824198e83450ed87bea, type: 3}
   - {fileID: 6656093529113367745, guid: 49e22c5daf1f08747ab299e91f4045f0, type: 3}
   - {fileID: 1610072576636594369, guid: 510791a2e18dedd45b2114282f386a15, type: 3}
