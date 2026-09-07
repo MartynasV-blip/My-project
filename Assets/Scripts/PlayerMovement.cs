@@ -25,15 +25,18 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 input;
     private Animator anim;
     private float lastPunchTime = -999f;
+    private Ragdoll ragdoll;
 
     void Start() {
         rb = GetComponent<Rigidbody>();
         anim = GetComponentInChildren<Animator>();
+        ragdoll = GetComponent<Ragdoll>();
         if (rb == null)
             Debug.LogError($"No Rigidbody attached to {name}. PlayerMovement requires a Rigidbody component.");
     }
 
     void Update() {
+        if (ragdoll != null && ragdoll.IsRagdolled) { input = Vector3.zero; return; }
         var kb = Keyboard.current;
         if (kb == null || cameraTransform == null) { input = Vector3.zero; return; }
 
@@ -107,6 +110,7 @@ public class PlayerMovement : MonoBehaviour
     }
 
     void FixedUpdate() {
+        if (ragdoll != null && ragdoll.IsRagdolled) return;
         if (rb == null || input == Vector3.zero) return;
 
         rb.AddForce(input * moveForce);

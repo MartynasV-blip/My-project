@@ -16,6 +16,7 @@ public class EnemyAI : MonoBehaviour
     public float moveSpeed = 3f;
     public float attackRange = 1.8f;
     public float stopRange = 1.4f;
+    public float repathInterval = 0.2f;
 
     [Header("Attack")]
     public float attackCooldown = 2f;
@@ -24,6 +25,8 @@ public class EnemyAI : MonoBehaviour
     public float punchWindowStart = 0.2f;
     public float punchWindowDuration = 0.25f;
     public LayerMask playerLayers;
+    public float ragdollForce = 20f;
+    public float punchLift = 2f;
 
     [Header("Recovery")]
     public float recoveryTime = 0.5f;
@@ -33,6 +36,7 @@ public class EnemyAI : MonoBehaviour
     private Ragdoll ragdoll;
     private State state = State.Chasing;
     private float lastAttackTime = -999f;
+    private float lastRepath = -999f;
 
     void Awake() {
         agent = GetComponent<NavMeshAgent>();
@@ -82,7 +86,10 @@ public class EnemyAI : MonoBehaviour
     }
 
     void Chase(float dist) {
-        if (agent.enabled) agent.SetDestination(target.position);
+        if (agent.enabled && Time.time >= lastRepath + repathInterval) {
+            agent.SetDestination(target.position);
+            lastRepath = Time.time;
+        }
 
         if (dist <= attackRange && Time.time >= lastAttackTime + attackCooldown)
             StartAttack();
@@ -126,7 +133,18 @@ public class EnemyAI : MonoBehaviour
             foreach (Collider c in hits) {
                 if (alreadyHit.Contains(c)) continue;
                 alreadyHit.Add(c);
+
                 Debug.Log($"{name} hit {c.name}");
+
+                Ragdoll rag = c.GetComponentInParent<Ragdoll>();
+                if (rag == null || rag == ragdoll) continue;
+
+                Vector3 dir = c.transform.position - transform.position;
+                dir.y = 0f;
+                if (dir.sqrMagnitude < 0.001f) dir = transform.forward;
+                dir.Normalize();
+
+                rag.Hit(dir * ragdollForce + Vector3.up * punchLift, punchPoint.position);
             }
 
             elapsed += Time.deltaTime;
