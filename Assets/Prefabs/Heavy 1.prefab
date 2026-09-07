@@ -351,6 +351,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 100052, guid: 8232c9b8b57970e439a8c6d10fc534d5, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4453169072591642096}
+    - targetCorrespondingSourceObject: {fileID: 100052, guid: 8232c9b8b57970e439a8c6d10fc534d5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5857387974114447433}
     - targetCorrespondingSourceObject: {fileID: 100044, guid: 8232c9b8b57970e439a8c6d10fc534d5, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7600640126480126628}
@@ -423,6 +426,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 100000, guid: 8232c9b8b57970e439a8c6d10fc534d5, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1842330295829383924}
+    - targetCorrespondingSourceObject: {fileID: 100000, guid: 8232c9b8b57970e439a8c6d10fc534d5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 941965847653936660}
     - targetCorrespondingSourceObject: {fileID: 100100, guid: 8232c9b8b57970e439a8c6d10fc534d5, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2741645981002452127}
@@ -565,8 +571,8 @@ MonoBehaviour:
   playerLayers:
     serializedVersion: 2
     m_Bits: 128
-  ragdollForce: 400
-  punchLift: 20
+  ragdollForce: 800
+  punchLift: 80
   recoveryTime: 0.5
 --- !u!1 &6656093529113367753 stripped
 GameObject:
@@ -1124,6 +1130,22 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &5857387974114447433
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6656093529113367833}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988fba5373130c74bb420ce6976f9bb1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RagdollImpact
+  minImpulse: 4
+  passOnForce: 12
+  passOnLift: 1.5
+  perTargetCooldown: 0.5
 --- !u!1 &6656093529113367835 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 100054, guid: 8232c9b8b57970e439a8c6d10fc534d5, type: 3}
@@ -1526,6 +1548,22 @@ CharacterJoint:
   m_EnablePreprocessing: 0
   m_MassScale: 1
   m_ConnectedMassScale: 1
+--- !u!114 &941965847653936660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6656093529113367917}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988fba5373130c74bb420ce6976f9bb1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RagdollImpact
+  minImpulse: 4
+  passOnForce: 12
+  passOnLift: 1.5
+  perTargetCooldown: 0.5
 --- !u!1 &6656093529113367919 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 100002, guid: 8232c9b8b57970e439a8c6d10fc534d5, type: 3}

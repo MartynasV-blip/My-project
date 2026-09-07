@@ -8,6 +8,7 @@ public class PlayerMovement : MonoBehaviour
     [Header("Movement")]
     public float moveForce = 10f;
     public float turnSpeed = 360f;
+    public float sprintMultiplier = 1.5f;
     public Transform cameraTransform;
 
     [Header("Punch")]
@@ -24,19 +25,22 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody rb;
     private Vector3 input;
     private Animator anim;
-    private float lastPunchTime = -999f;
     private Ragdoll ragdoll;
+    private float lastPunchTime = -999f;
+    private bool sprinting;
 
     void Start() {
         rb = GetComponent<Rigidbody>();
         anim = GetComponentInChildren<Animator>();
         ragdoll = GetComponent<Ragdoll>();
+
         if (rb == null)
             Debug.LogError($"No Rigidbody attached to {name}. PlayerMovement requires a Rigidbody component.");
     }
 
     void Update() {
         if (ragdoll != null && ragdoll.IsRagdolled) { input = Vector3.zero; return; }
+
         var kb = Keyboard.current;
         if (kb == null || cameraTransform == null) { input = Vector3.zero; return; }
 
@@ -52,6 +56,8 @@ public class PlayerMovement : MonoBehaviour
         if (kb.sKey.isPressed) v -= 1f;
         if (kb.dKey.isPressed) h += 1f;
         if (kb.aKey.isPressed) h -= 1f;
+
+        sprinting = kb.leftShiftKey.isPressed || kb.rightShiftKey.isPressed;
 
         Vector3 fwd = cameraTransform.forward; fwd.y = 0f; fwd.Normalize();
         Vector3 right = cameraTransform.right; right.y = 0f; right.Normalize();
@@ -93,6 +99,7 @@ public class PlayerMovement : MonoBehaviour
 
                 Ragdoll rag = c.GetComponentInParent<Ragdoll>();
                 if (rag != null) {
+                    if (rag == ragdoll) continue;
                     if (alreadyRagdolled.Contains(rag)) continue;
                     alreadyRagdolled.Add(rag);
                     rag.Hit(dir * ragdollForce + Vector3.up * punchLift, punchPoint.position);
@@ -113,7 +120,8 @@ public class PlayerMovement : MonoBehaviour
         if (ragdoll != null && ragdoll.IsRagdolled) return;
         if (rb == null || input == Vector3.zero) return;
 
-        rb.AddForce(input * moveForce);
+        float force = sprinting ? moveForce * sprintMultiplier : moveForce;
+        rb.AddForce(input * force);
 
         Quaternion target = Quaternion.LookRotation(input, Vector3.up);
         rb.MoveRotation(Quaternion.RotateTowards(rb.rotation, target, turnSpeed * Time.fixedDeltaTime));
