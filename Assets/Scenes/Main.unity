@@ -564,6 +564,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1847735480}
+  - component: {fileID: 1847735481}
   m_Layer: 0
   m_Name: SpawnPoints
   m_TagString: Untagged
@@ -590,6 +591,31 @@ Transform:
   - {fileID: 66010850}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1847735481
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1847735479}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9319546635b0ae34abcaa167932e11cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
+  enemyPrefab: {fileID: 6656093529113367745, guid: 49e22c5daf1f08747ab299e91f4045f0, type: 3}
+  spawnPoints:
+  - {fileID: 1076248319}
+  - {fileID: 1063133743}
+  - {fileID: 1527403841}
+  - {fileID: 66010850}
+  firstWaveDelay: 3
+  timeBetweenWaves: 20
+  enemiesPerWave: 2
+  timeBetweenSpawns: 0.5
+  enemiesAddedPerWave: 1
+  maxAlive: 8
+  spawnOnStart: 1
 --- !u!1 &2062543926
 GameObject:
   m_ObjectHideFlags: 0

@@ -556,6 +556,7 @@ MonoBehaviour:
   moveSpeed: 3
   attackRange: 1.8
   stopRange: 1.4
+  repathInterval: 0.2
   attackCooldown: 2
   punchPoint: {fileID: 1880893857969434074}
   punchRadius: 0.5
@@ -564,6 +565,8 @@ MonoBehaviour:
   playerLayers:
     serializedVersion: 2
     m_Bits: 128
+  ragdollForce: 400
+  punchLift: 20
   recoveryTime: 0.5
 --- !u!1 &6656093529113367753 stripped
 GameObject:
