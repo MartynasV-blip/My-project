@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using TMPro;
 
 public class CanvasManager : MonoBehaviour
@@ -9,10 +10,14 @@ public class CanvasManager : MonoBehaviour
     [SerializeField] private TMP_Text timerText;
 
     private float elapsedTime = 0f;
+    private bool timerRunning = false;
+
+    public float ElapsedTime => elapsedTime;
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        var kb = Keyboard.current;
+        if (kb != null && kb.escapeKey.wasPressedThisFrame && timerRunning)
         {
             if (gameIsPaused)
             {
@@ -23,12 +28,25 @@ public class CanvasManager : MonoBehaviour
                 Pause();
             }
         }
-        elapsedTime += Time.deltaTime;
+
+        if (timerRunning) elapsedTime += Time.deltaTime;
         UpdateTimerDisplay();
     }
 
-        void UpdateTimerDisplay()
+    public void StartTimer()
     {
+        elapsedTime = 0f;
+        timerRunning = true;
+    }
+
+    public void StopTimer()
+    {
+        timerRunning = false;
+    }
+
+    void UpdateTimerDisplay()
+    {
+        if (timerText == null) return;
         int minutes = Mathf.FloorToInt(elapsedTime / 60f);
         int seconds = Mathf.FloorToInt(elapsedTime % 60f);
         timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);

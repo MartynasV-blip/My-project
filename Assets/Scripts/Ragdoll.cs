@@ -1,11 +1,17 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Ragdoll : MonoBehaviour
 {
     [Header("Timing")]
-    public float ragdollDuration = 4f;
+    public float ragdollDuration = 5f;
     public float standUpHeight = 1f;
+
+    [Header("Death")]
+    public bool dieAfterRagdoll = false;
+    public float fadeDuration = 1f;
 
     [Header("Ground Check")]
     public LayerMask groundLayers = ~0;
@@ -20,6 +26,11 @@ public class Ragdoll : MonoBehaviour
 
     private bool isRagdolled;
     public bool IsRagdolled => isRagdolled;
+
+    public float RagdollTimeRemaining { get; private set; }
+    public event Action<float> OnRagdollTimeChanged;
+    public event Action OnRagdollStart;
+    public event Action OnRagdollEnd;
 
     void Awake() {
         animator = GetComponentInChildren<Animator>();
@@ -67,6 +78,7 @@ public class Ragdoll : MonoBehaviour
         if (isRagdolled) return;
 
         SetBonesActive(true);
+        OnRagdollStart?.Invoke();
 
         Rigidbody target = FindNearestBone(hitPoint);
         if (target != null) target.AddForce(force, ForceMode.Impulse);
@@ -75,8 +87,68 @@ public class Ragdoll : MonoBehaviour
     }
 
     IEnumerator StandUpAfterDelay() {
-        yield return new WaitForSeconds(ragdollDuration);
-        StandUp();
+        RagdollTimeRemaining = ragdollDuration;
+
+        while (RagdollTimeRemaining > 0f) {
+            OnRagdollTimeChanged?.Invoke(RagdollTimeRemaining);
+            yield return null;
+            RagdollTimeRemaining -= Time.deltaTime;
+        }
+
+        RagdollTimeRemaining = 0f;
+        OnRagdollTimeChanged?.Invoke(0f);
+
+        if (dieAfterRagdoll) {
+            yield return StartCoroutine(FadeAndDie());
+        } else {
+            StandUp();
+            OnRagdollEnd?.Invoke();
+        }
+    }
+
+    IEnumerator FadeAndDie() {
+        var renderers = GetComponentsInChildren<Renderer>();
+        var mats = new List<Material>();
+
+        foreach (Renderer r in renderers)
+            foreach (Material m in r.materials) {
+                MakeTransparent(m);
+                mats.Add(m);
+            }
+
+        float t = 0f;
+        while (t < fadeDuration) {
+            float a = 1f - (t / fadeDuration);
+
+            foreach (Material m in mats) {
+                if (m.HasProperty("_BaseColor")) {
+                    Color c = m.GetColor("_BaseColor");
+                    c.a = a;
+                    m.SetColor("_BaseColor", c);
+                } else if (m.HasProperty("_Color")) {
+                    Color c = m.color;
+                    c.a = a;
+                    m.color = c;
+                }
+            }
+
+            t += Time.deltaTime;
+            yield return null;
+        }
+
+        Destroy(gameObject);
+    }
+
+    void MakeTransparent(Material m) {
+        m.SetFloat("_Surface", 1f);
+        m.SetFloat("_Blend", 0f);
+        m.SetOverrideTag("RenderType", "Transparent");
+        m.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        m.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        m.SetInt("_ZWrite", 0);
+        m.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+        m.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        m.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
     }
 
     void StandUp() {

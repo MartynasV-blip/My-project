@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class PlayerHealth : MonoBehaviour
 {
@@ -8,24 +9,43 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private Image[] hearts;
     [SerializeField] private Sprite fullHeart;
     [SerializeField] private Sprite emptyHeart;
-    [SerializeField] private float restartDelay = 1.5f;
+    [SerializeField] private float deathFreezeDelay = 1.5f;
+    [SerializeField] private float invulnerableTime = 0.5f;
+
+    [Header("Game Over")]
+    [SerializeField] private GameObject gameOverUI;
+    [SerializeField] private TMP_Text finalTimeText;
+    [SerializeField] private TMP_Text bestTimeText;
+    [SerializeField] private CanvasManager canvasManager;
 
     private int currentLives;
     private bool isDead = false;
+    private float lastHitTime = -999f;
+
+    public int CurrentLives => currentLives;
+    public bool IsDead => isDead;
+    public bool IsInvulnerable => Time.time < lastHitTime + invulnerableTime;
 
     void Start()
     {
         currentLives = maxLives;
         UpdateHeartsUI();
+
+        if (gameOverUI != null) gameOverUI.SetActive(false);
     }
 
     public void TakeDamage(int amount = 1)
     {
         if (isDead) return;
+        if (IsInvulnerable) return;
+
+        lastHitTime = Time.time;
 
         currentLives -= amount;
         currentLives = Mathf.Max(currentLives, 0);
         UpdateHeartsUI();
+
+        Debug.Log("Player hit. Hearts left: " + currentLives);
 
         if (currentLives <= 0)
         {
@@ -35,8 +55,11 @@ public class PlayerHealth : MonoBehaviour
 
     void UpdateHeartsUI()
     {
+        if (hearts == null) return;
+
         for (int i = 0; i < hearts.Length; i++)
         {
+            if (hearts[i] == null) continue;
             hearts[i].sprite = i < currentLives ? fullHeart : emptyHeart;
         }
     }
@@ -44,15 +67,62 @@ public class PlayerHealth : MonoBehaviour
     void Die()
     {
         isDead = true;
-        Debug.Log("Player died — restarting in " + restartDelay + "s");
-        Invoke(nameof(RestartScene), restartDelay);
+        Debug.Log("Player died.");
+
+        if (canvasManager != null) canvasManager.StopTimer();
+
+        RecordBestTime();
+        Invoke(nameof(FreezeGame), deathFreezeDelay);
     }
 
-    void RestartScene()
+    void RecordBestTime()
+    {
+        float survived = canvasManager != null ? canvasManager.ElapsedTime : 0f;
+        float best = PlayerPrefs.GetFloat(StartMenu.BestTimeKey, 0f);
+
+        if (survived > best)
+        {
+            best = survived;
+            PlayerPrefs.SetFloat(StartMenu.BestTimeKey, best);
+            PlayerPrefs.Save();
+            Debug.Log("New best time: " + best);
+        }
+
+        if (finalTimeText != null)
+            finalTimeText.text = "Time: " + FormatTime(survived);
+
+        if (bestTimeText != null)
+            bestTimeText.text = "Best: " + FormatTime(best);
+    }
+
+    string FormatTime(float seconds)
+    {
+        int m = Mathf.FloorToInt(seconds / 60f);
+        int s = Mathf.FloorToInt(seconds % 60f);
+        return string.Format("{0:00}:{1:00}", m, s);
+    }
+
+    void FreezeGame()
+    {
+        if (gameOverUI != null) gameOverUI.SetActive(true);
+        Time.timeScale = 0f;
+    }
+
+    public void RestartScene()
     {
         Time.timeScale = 1f;
         CanvasManager.gameIsPaused = false;
         Scene currentScene = SceneManager.GetActiveScene();
         SceneManager.LoadScene(currentScene.buildIndex);
+    }
+
+    public void ResetHealth()
+    {
+        currentLives = maxLives;
+        isDead = false;
+        lastHitTime = -999f;
+        UpdateHeartsUI();
+
+        if (gameOverUI != null) gameOverUI.SetActive(false);
     }
 }

@@ -1342,7 +1342,7 @@ MonoBehaviour:
   timeBetweenWaves: 3
   enemiesPerWave: 3
   timeBetweenSpawns: 0.5
-  enemiesAddedPerWave: 1
+  enemiesAddedPerWave: 2
   maxAlive: 30
   spawnOnStart: 1
 --- !u!1 &1854629239
