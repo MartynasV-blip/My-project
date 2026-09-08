@@ -134,17 +134,14 @@ public class EnemyAI : MonoBehaviour
                 if (alreadyHit.Contains(c)) continue;
                 alreadyHit.Add(c);
 
-                Debug.Log($"{name} hit {c.name}");
-
                 Ragdoll rag = c.GetComponentInParent<Ragdoll>();
                 if (rag == null || rag == ragdoll) continue;
 
-                if (!damageApplied) {
-                    PlayerHealth playerHealth = c.GetComponentInParent<PlayerHealth>();
-                    if (playerHealth != null) {
-                        playerHealth.TakeDamage(1);
-                        damageApplied = true;
-                    }
+                PlayerHealth playerHealth = c.GetComponentInParent<PlayerHealth>();
+                if (playerHealth != null) {
+                    if (damageApplied) continue;
+                    if (!playerHealth.TakeDamage(1)) continue;
+                    damageApplied = true;
                 }
 
                 Vector3 dir = c.transform.position - transform.position;

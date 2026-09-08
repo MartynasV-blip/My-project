@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class CameraFollow : MonoBehaviour
 {
@@ -12,10 +13,30 @@ public class CameraFollow : MonoBehaviour
     public float followSpeed = 15f;
     public float lookHeight = 1f;
 
+    [Header("Rotation")]
+    public float rotateSpeed = 90f;
+    public bool snapRotate = false;
+    public float snapAngle = 45f;
+
     [Header("Ragdoll view")]
     public Vector3 ragdollOffset = new Vector3(0f, 6f, -0.5f);
     public float ragdollFollowSpeed = 4f;
     public float ragdollLookHeight = 0f;
+
+    private float yaw;
+
+    void Update() {
+        var kb = Keyboard.current;
+        if (kb == null) return;
+
+        if (snapRotate) {
+            if (kb.leftArrowKey.wasPressedThisFrame) yaw -= snapAngle;
+            if (kb.rightArrowKey.wasPressedThisFrame) yaw += snapAngle;
+        } else {
+            if (kb.leftArrowKey.isPressed) yaw -= rotateSpeed * Time.deltaTime;
+            if (kb.rightArrowKey.isPressed) yaw += rotateSpeed * Time.deltaTime;
+        }
+    }
 
     void LateUpdate() {
         bool down = targetRagdoll != null && targetRagdoll.IsRagdolled;
@@ -25,6 +46,8 @@ public class CameraFollow : MonoBehaviour
         if (follow == null) return;
 
         Vector3 useOffset = down ? ragdollOffset : offset;
+        useOffset = Quaternion.Euler(0f, yaw, 0f) * useOffset;
+
         float useSpeed = down ? ragdollFollowSpeed : followSpeed;
         float useLook = down ? ragdollLookHeight : lookHeight;
 

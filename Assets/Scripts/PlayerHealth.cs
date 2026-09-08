@@ -10,7 +10,7 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private Sprite fullHeart;
     [SerializeField] private Sprite emptyHeart;
     [SerializeField] private float deathFreezeDelay = 1.5f;
-    [SerializeField] private float invulnerableTime = 0.5f;
+    [SerializeField] private float invulnerableTime = 4f;
 
     [Header("Game Over")]
     [SerializeField] private GameObject gameOverUI;
@@ -34,10 +34,10 @@ public class PlayerHealth : MonoBehaviour
         if (gameOverUI != null) gameOverUI.SetActive(false);
     }
 
-    public void TakeDamage(int amount = 1)
+    public bool TakeDamage(int amount = 1)
     {
-        if (isDead) return;
-        if (IsInvulnerable) return;
+        if (isDead) return false;
+        if (IsInvulnerable) return false;
 
         lastHitTime = Time.time;
 
@@ -45,12 +45,12 @@ public class PlayerHealth : MonoBehaviour
         currentLives = Mathf.Max(currentLives, 0);
         UpdateHeartsUI();
 
-        Debug.Log("Player hit. Hearts left: " + currentLives);
-
         if (currentLives <= 0)
         {
             Die();
         }
+
+        return true;
     }
 
     void UpdateHeartsUI()
@@ -67,7 +67,6 @@ public class PlayerHealth : MonoBehaviour
     void Die()
     {
         isDead = true;
-        Debug.Log("Player died.");
 
         if (canvasManager != null) canvasManager.StopTimer();
 
@@ -85,7 +84,6 @@ public class PlayerHealth : MonoBehaviour
             best = survived;
             PlayerPrefs.SetFloat(StartMenu.BestTimeKey, best);
             PlayerPrefs.Save();
-            Debug.Log("New best time: " + best);
         }
 
         if (finalTimeText != null)
